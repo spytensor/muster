@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Muster",
+    "slug": "muster",
+    "scheme": "muster",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "ios": {
+      "bundleIdentifier": "ai.muster.app",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        },
+        "CFBundleLocalizations": ["en", "zh-Hans"]
+      }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/splash-mark.png",
+          "imageWidth": 96,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#000000",
+            "image": "./assets/splash-mark-dark.png"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-font",
+      "expo-document-picker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Muster reads the photos you choose so you can send them to an agent.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "./plugins/with-scene-lifecycle.cjs",
+      "./plugins/with-pods-deployment-target.cjs"
+    ],
+    "extra": {
+      "serverUrl": "http://localhost:7420"
+    },
+    "locales": {
+      "zh-Hans": {
+        "ios": {
+          "NSPhotoLibraryUsageDescription": "Muster 读取你选择的照片，以便发送给 Agent。"
+        }
+      }
+    }
+  }
+}

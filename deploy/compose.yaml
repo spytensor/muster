@@ -1,0 +1,155 @@
+# Muster on one machine: the server (which also serves the web app), PostgreSQL and the sandbox.
+# Run exactly one `muster` container per database: runs in progress live in its memory,
+# and a second one refuses to start.
+#   cp deploy/.env.example deploy/.env   # then fill it in
+#   docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: muster
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: muster
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U muster"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  muster:
+    build:
+      context: ..
+      args:
+        MUSTER_COMMIT: ${MUSTER_COMMIT:-unknown}
+    restart: unless-stopped
+    networks: [default, search, sandbox]
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Reachable from this machine only: put a TLS-terminating proxy in front and let it be the
+      # one thing that talks to this port. Set MUSTER_BIND=0.0.0.0 only if the proxy is elsewhere.
+      - "${MUSTER_BIND:-127.0.0.1}:${MUSTER_PORT:-7410}:7410"
+    volumes:
+      - files:/data/files
+    environment:
+      MUSTER_MAX_FILE_MB: ${MUSTER_MAX_FILE_MB:-25}
+      MUSTER_DAILY_TOKENS_PER_USER: ${MUSTER_DAILY_TOKENS_PER_USER:-}
+      # The password travels on its own, not inside the address, so it may hold any character.
+      DATABASE_URL: postgres://muster@db:5432/muster
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      MUSTER_PUBLIC_URL: ${MUSTER_PUBLIC_URL:?set MUSTER_PUBLIC_URL}
+      MUSTER_ORG_NAME: ${MUSTER_ORG_NAME:-Muster}
+      MUSTER_BOOTSTRAP_OWNER_EMAIL: ${MUSTER_BOOTSTRAP_OWNER_EMAIL:?set MUSTER_BOOTSTRAP_OWNER_EMAIL}
+      MUSTER_TRUST_PROXY: ${MUSTER_TRUST_PROXY:-0}
+      MUSTER_GOOGLE_CLIENT_ID: ${MUSTER_GOOGLE_CLIENT_ID:-}
+      MUSTER_GOOGLE_CLIENT_SECRET: ${MUSTER_GOOGLE_CLIENT_SECRET:-}
+      MUSTER_MICROSOFT_CLIENT_ID: ${MUSTER_MICROSOFT_CLIENT_ID:-}
+      MUSTER_MICROSOFT_CLIENT_SECRET: ${MUSTER_MICROSOFT_CLIENT_SECRET:-}
+      MUSTER_MICROSOFT_TENANT: ${MUSTER_MICROSOFT_TENANT:-}
+      MUSTER_SECRET_KEY: ${MUSTER_SECRET_KEY:-}
+      # Where agents search the web. Off unless one is set: what agents search for
+      # leaves the company for the search service. See deploy/.env.example.
+      MUSTER_SEARXNG_URL: ${MUSTER_SEARXNG_URL:-}
+      # Where agents' code runs: the service below. Set it to nothing to give agents no way to run code.
+      MUSTER_SANDBOX_URL: ${MUSTER_SANDBOX_URL-http://sandbox:7420}
+      MUSTER_SANDBOX_DAILY_RUNS: ${MUSTER_SANDBOX_DAILY_RUNS:-}
+      MUSTER_SANDBOX_DAILY_CPU_SECONDS: ${MUSTER_SANDBOX_DAILY_CPU_SECONDS:-}
+      MUSTER_TAVILY_API_KEY: ${MUSTER_TAVILY_API_KEY:-}
+      MUSTER_SEARCH1API_KEY: ${MUSTER_SEARCH1API_KEY:-}
+      MUSTER_OIDC_ISSUER: ${MUSTER_OIDC_ISSUER:-}
+      MUSTER_OIDC_CLIENT_ID: ${MUSTER_OIDC_CLIENT_ID:-}
+      MUSTER_OIDC_CLIENT_SECRET: ${MUSTER_OIDC_CLIENT_SECRET:-}
+      MUSTER_OIDC_LABEL: ${MUSTER_OIDC_LABEL:-}
+      MUSTER_OIDC_TRUST_EMAIL: ${MUSTER_OIDC_TRUST_EMAIL:-}
+      MUSTER_OIDC_DIRECTORY: ${MUSTER_OIDC_DIRECTORY:-}
+      MUSTER_SESSION_DAYS: ${MUSTER_SESSION_DAYS:-7}
+      MUSTER_MODEL_API: ${MUSTER_MODEL_API:-}
+      MUSTER_MODEL_ID: ${MUSTER_MODEL_ID:-}
+      MUSTER_MODEL_BASE_URL: ${MUSTER_MODEL_BASE_URL:-}
+      MUSTER_MODEL_API_KEY: ${MUSTER_MODEL_API_KEY:-}
+      MUSTER_MODEL_VISION: ${MUSTER_MODEL_VISION:-}
+      MUSTER_MODEL_INPUT_PRICE: ${MUSTER_MODEL_INPUT_PRICE:-}
+      MUSTER_MODEL_OUTPUT_PRICE: ${MUSTER_MODEL_OUTPUT_PRICE:-}
+      MUSTER_MODEL_CACHED_INPUT_PRICE: ${MUSTER_MODEL_CACHED_INPUT_PRICE:-}
+      MUSTER_MODEL_CACHE_WRITE_PRICE: ${MUSTER_MODEL_CACHE_WRITE_PRICE:-}
+      MUSTER_MODEL_FIRST_WORD_SECONDS: ${MUSTER_MODEL_FIRST_WORD_SECONDS:-}
+      MUSTER_MODEL_SILENCE_SECONDS: ${MUSTER_MODEL_SILENCE_SECONDS:-}
+      MUSTER_MODEL_MAX_OUTPUT_TOKENS: ${MUSTER_MODEL_MAX_OUTPUT_TOKENS:-}
+      # The model's real window. Unset, 128000 is assumed and
+      # compaction begins far too early for a larger model.
+      MUSTER_MODEL_CONTEXT_WINDOW: ${MUSTER_MODEL_CONTEXT_WINDOW:-}
+      MUSTER_MODEL_REASONING_EFFORT: ${MUSTER_MODEL_REASONING_EFFORT:-}
+      # The second model, asked when the first cannot answer at all.
+      MUSTER_MODEL_FALLBACK_ID: ${MUSTER_MODEL_FALLBACK_ID:-}
+      MUSTER_MODEL_FALLBACK_API: ${MUSTER_MODEL_FALLBACK_API:-}
+      MUSTER_MODEL_FALLBACK_BASE_URL: ${MUSTER_MODEL_FALLBACK_BASE_URL:-}
+      MUSTER_MODEL_FALLBACK_API_KEY: ${MUSTER_MODEL_FALLBACK_API_KEY:-}
+      MUSTER_MODEL_FALLBACK_INPUT_PRICE: ${MUSTER_MODEL_FALLBACK_INPUT_PRICE:-}
+      MUSTER_MODEL_FALLBACK_OUTPUT_PRICE: ${MUSTER_MODEL_FALLBACK_OUTPUT_PRICE:-}
+      MUSTER_MODEL_FALLBACK_CACHED_INPUT_PRICE: ${MUSTER_MODEL_FALLBACK_CACHED_INPUT_PRICE:-}
+      MUSTER_MODEL_FALLBACK_CACHE_WRITE_PRICE: ${MUSTER_MODEL_FALLBACK_CACHE_WRITE_PRICE:-}
+      MUSTER_MODEL_FALLBACK_VISION: ${MUSTER_MODEL_FALLBACK_VISION:-}
+
+  # Runs agents' code, each run in a container of its own that has no network, a read-only
+  # system and nothing of this machine in it (apps/sandbox). It is the one service given
+  # Docker's socket, which is as much as being root on this machine: it takes no image, flag
+  # or path from a request, and only the server can reach it, on a network with no way out.
+  # It is also the one way out for a run: it connects, for the run, to the hosts on the
+  # organization's list and to nothing else (apps/sandbox/src/egress.ts), over `egress`,
+  # a network that holds nothing but this service.
+  # It uses gVisor (a runtime whose name holds "runsc") and runs nothing without one; set
+  # SANDBOX_ALLOW_CONTAINER=1 only on a machine where that is accepted.
+  sandbox:
+    build:
+      context: ..
+      dockerfile: apps/sandbox/Dockerfile
+      args:
+        MUSTER_COMMIT: ${MUSTER_COMMIT:-unknown}
+    restart: unless-stopped
+    # A working folder passes through this service's memory on its way in and out; three
+    # runs at once stay well inside this. Past it the service is restarted, not the machine.
+    mem_limit: 3g
+    pids_limit: 512
+    networks: [sandbox, egress]
+    volumes:
+      # The socket of the Docker this runs on. A rootless Docker's is the user's own
+      # (/run/user/<uid>/docker.sock), and the system's is then not theirs to open;
+      # scripts/deploy-commit.sh finds which and says so here.
+      - ${SANDBOX_DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
+      - spaces:/spaces
+    environment:
+      SANDBOX_RUNTIME: ${SANDBOX_RUNTIME:-}
+      SANDBOX_ALLOW_CONTAINER: ${SANDBOX_ALLOW_CONTAINER:-}
+  # Web search for agents, run here so searches leave from this machine and need no
+  # account. Started only with the "search" profile (COMPOSE_PROFILES=search). Not
+  # published, and on a network of its own with Muster: it reads the open web, so it is
+  # kept away from the database and holds no secret of anything else.
+  searxng:
+    image: searxng/searxng@sha256:cc026dbee25b864d7f9731957cd5ef36ba2e2d61abd2996d57f1b863483e7409
+    profiles: [search]
+    restart: unless-stopped
+    environment:
+      # Compose reads this line even when the search profile is off, so it cannot be
+      # required here: a deployment without search would not start. Set it with the profile.
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks: [search]
+
+networks:
+  search:
+  # The server and the sandbox runner, and no way out of it.
+  sandbox:
+    internal: true
+  # The sandbox runner's way out, for the hosts code may reach. Nothing else is on it.
+  egress:
+
+volumes:
+  db:
+  files:
+  # The working folders of conversations that ran code. Forgotten a week after their last use.
+  spaces:

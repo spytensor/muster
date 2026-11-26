@@ -1,0 +1,13 @@
+{
+  "name": "@muster/sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Runs an agent's code in a container that has no network and nothing of the server's, and is its one way out.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  }
+}

@@ -1,0 +1,32 @@
+# SearXNG for Muster: agents search the web through this, so searches leave from the
+# company's own machine and no search account is needed. Muster asks for JSON.
+# Only the engines named here are asked. The default set fans every search out to dozens
+# of services, some run by individuals; what an agent searches for should go to few.
+use_default_settings:
+  engines:
+    keep_only:
+      - google
+      - bing
+      - duckduckgo
+      - brave
+      - startpage
+      - mojeek
+      - baidu
+      - wikipedia
+# Two that are off in the default set are turned on: several of the others refuse a
+# server that asks often, and a search should not depend on one.
+engines:
+  - name: bing
+    disabled: false
+  - name: mojeek
+    disabled: false
+server:
+  # Replaced by SEARXNG_SECRET from the environment when the container starts.
+  secret_key: "change-me"
+  limiter: false
+  image_proxy: false
+search:
+  safe_search: 1
+  formats:
+    - html
+    - json

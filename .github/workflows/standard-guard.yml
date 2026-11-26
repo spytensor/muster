@@ -1,0 +1,73 @@
+# Standard guard — enforces the standard's structural rules in CI.
+# Copy to a target repo as .github/workflows/standard-guard.yml.
+# Assumes automation/ scripts are vendored into the target repo. Make this a REQUIRED
+# status check via automation/set-branch-protection.sh — otherwise it's optional theatre.
+name: standard-guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+# Cancel superseded runs to bound cost (Standard P12).
+concurrency:
+  group: standard-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    # GitHub's own machines, never a self-hosted runner: this repository is public, and a
+    # pull request from a fork would run its code on that machine.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # actions pinned by SHA (supply-chain; P12). Comment is the version.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0   # tags + full history for diff/freshness checks
+
+      - name: Kill-switch (agent-halt)
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh pr view "${{ github.event.pull_request.number }}" --json labels \
+               -q '.labels[].name' | grep -qx 'agent-halt'; then
+            echo "agent-halt label present — hard stop (P12)."; exit 1
+          fi
+
+      - name: Governance freshness (P9)
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/check-agents-freshness.sh AGENTS.md
+
+      - name: PR evidence is real (P2/P10)
+        # The maintainers' paperwork; not asked of a pull request from a fork.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/check-pr-evidence.sh "${{ github.event.pull_request.number }}"
+
+      - name: Tier vs diff (P6/P8)
+        # The maintainers' paperwork; not asked of a pull request from a fork.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/check-tier.sh "origin/${{ github.base_ref }}" "${{ github.event.pull_request.number }}"
+
+      - name: Test integrity (P10)
+        if: github.event_name == 'pull_request'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/check-test-integrity.sh "origin/${{ github.base_ref }}" "${{ github.event.pull_request.number }}"
+
+      - name: Secret scan of diff + PR body (P12)
+        if: github.event_name == 'pull_request'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/check-no-secrets.sh "origin/${{ github.base_ref }}" "${{ github.event.pull_request.number }}"
+
+      - name: Branch protection is real (P10/P11), on main
+        if: github.event_name == 'push'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bash automation/verify-branch-protection.sh || echo "::warning::main is under-protected"

@@ -1,0 +1,16 @@
+# CODEOWNERS — ties areas to owning roles/people (Standard P4, P9).
+# Copy to .github/CODEOWNERS in the target repo. Keep in sync with docs/code-map.md.
+# Owners are auto-requested for review on PRs touching their paths; combined with
+# branch protection (require code-owner review) this enforces P10 independent review.
+
+# Constitution and governance — owner/host only.
+/docs/architecture.md            @spytensor
+/docs/proposed-amendments.md     @spytensor
+/AGENTS.md                       @spytensor
+/.github/                        @spytensor
+
+# Areas (mirror docs/code-map.md).
+/automation/   @spytensor
+/gates/        @spytensor
+/packages/     @spytensor
+/apps/         @spytensor

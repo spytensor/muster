@@ -1,0 +1,21 @@
+Muster
+Copyright 2026 The Muster Authors
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes software developed by others:
+
+OpenClaw (https://github.com/openclaw/openclaw)
+  Copyright (c) 2026 OpenClaw Foundation. MIT License.
+  The agent loop in vendor/openclaw is taken from OpenClaw, tag v2026.9.8. What was
+  taken, left out and changed is recorded in vendor/openclaw/UPSTREAM.md; the licence
+  is vendor/openclaw/LICENSE.
+
+Pi / pi-mono (https://github.com/earendil-works/pi-mono)
+  Copyright (c) 2025 Mario Zechner. MIT License.
+  Portions of OpenClaw are adapted from pi-mono; see
+  vendor/openclaw/THIRD_PARTY_NOTICES.md.
+
+Muster is an independent project. It is not affiliated with, endorsed by or sponsored
+by the OpenClaw Foundation, Tencent or Microsoft. WorkBuddy and Agent 365 are
+trademarks of their owners and are named only to say what Muster is comparable to.

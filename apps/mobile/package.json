@@ -1,0 +1,58 @@
+{
+  "name": "muster-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Muster for iOS: talk to agents, approve what they send, keep documents.",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios",
+    "prebuild": "expo prebuild -p ios",
+    "postinstall": "patch-package && node scripts/make-diagram-page.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "icons": "python3 scripts/make-icons.py"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "@muster/ui-schema": "file:../../packages/ui-schema",
+    "@openuidev/lang-core": "1.0.0",
+    "@openuidev/react-lang": "1.0.0",
+    "@react-navigation/elements": "^2.6.4",
+    "@react-navigation/native": "^7.1.17",
+    "@react-navigation/native-stack": "^7.3.26",
+    "expo": "~54.0.6",
+    "expo-blur": "~15.0.8",
+    "expo-clipboard": "~8.0.8",
+    "expo-constants": "~18.0.13",
+    "expo-crypto": "~15.0.7",
+    "expo-document-picker": "~14.0.8",
+    "expo-file-system": "~19.0.24",
+    "expo-font": "~14.0.9",
+    "expo-glass-effect": "~0.1.10",
+    "expo-image-picker": "~17.0.11",
+    "expo-secure-store": "~15.0.7",
+    "expo-splash-screen": "~31.0.13",
+    "expo-status-bar": "~3.0.9",
+    "expo-web-browser": "~15.0.11",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-file-viewer-turbo": "0.8.0",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-webview": "13.15.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "~19.1.10",
+    "mermaid": "11.17.2",
+    "patch-package": "^8.0.1",
+    "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "react-dom": "19.1.0"
+  }
+}

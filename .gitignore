@@ -1,0 +1,17 @@
+node_modules
+dist/
+out/
+coverage/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+.claude/
+deploy/backups/
+.dev-data/
+# Notes a local tool writes into folders it has worked in (claude-mem). Not the project's:
+# its instructions are AGENTS.md. One at the root, if ever wanted, is still tracked.
+CLAUDE.md
+!/CLAUDE.md

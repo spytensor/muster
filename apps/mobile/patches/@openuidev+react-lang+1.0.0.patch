@@ -1,0 +1,48 @@
+diff --git a/node_modules/@openuidev/react-lang/dist/WithPreviewRenderer-DT8MjE5L.cjs b/node_modules/@openuidev/react-lang/dist/WithPreviewRenderer-DT8MjE5L.cjs
+index d92ea63..2f1cee5 100644
+--- a/node_modules/@openuidev/react-lang/dist/WithPreviewRenderer-DT8MjE5L.cjs
++++ b/node_modules/@openuidev/react-lang/dist/WithPreviewRenderer-DT8MjE5L.cjs
+@@ -1040,17 +1040,8 @@ function RendererRetry({ children, onClick, disabled, ...props }) {
+ function DefaultRendererContent() {
+ 	const { root, query, queryLoader } = useRendererContext();
+ 	if (!root) return null;
+-	return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+-		"aria-busy": query.isLoading,
+-		style: { position: "relative" },
+-		children: [query.isLoading && (queryLoader ?? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(DefaultQueryLoader, {})), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+-			style: {
+-				opacity: query.isLoading ? .7 : 1,
+-				transition: "opacity 0.2s ease"
+-			},
+-			children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RenderNode, { node: root })
+-		})]
+-	});
++	// Muster: native components own presentation; never mount DOM containers.
++	return [query.isLoading && queryLoader ? queryLoader : null, react_jsx_runtime.jsx(RenderNode, { node: root }, "root")];
+ }
+ function DefaultRenderer({ children, ...props }) {
+ 	return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(RendererRoot, {
+diff --git a/node_modules/@openuidev/react-lang/dist/exports-CLfR509v.mjs b/node_modules/@openuidev/react-lang/dist/exports-CLfR509v.mjs
+index 9197762..d956a82 100644
+--- a/node_modules/@openuidev/react-lang/dist/exports-CLfR509v.mjs
++++ b/node_modules/@openuidev/react-lang/dist/exports-CLfR509v.mjs
+@@ -1017,17 +1017,8 @@ function RendererRetry({ children, onClick, disabled, ...props }) {
+ function DefaultRendererContent() {
+ 	const { root, query, queryLoader } = useRendererContext();
+ 	if (!root) return null;
+-	return /* @__PURE__ */ jsxs("div", {
+-		"aria-busy": query.isLoading,
+-		style: { position: "relative" },
+-		children: [query.isLoading && (queryLoader ?? /* @__PURE__ */ jsx(DefaultQueryLoader, {})), /* @__PURE__ */ jsx("div", {
+-			style: {
+-				opacity: query.isLoading ? .7 : 1,
+-				transition: "opacity 0.2s ease"
+-			},
+-			children: /* @__PURE__ */ jsx(RenderNode, { node: root })
+-		})]
+-	});
++	// Muster: native components own presentation; never mount DOM containers.
++	return [query.isLoading && queryLoader ? queryLoader : null, jsx(RenderNode, { node: root }, "root")];
+ }
+ function DefaultRenderer({ children, ...props }) {
+ 	return /* @__PURE__ */ jsx(RendererRoot, {

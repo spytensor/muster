@@ -1,0 +1,19 @@
+name: Idea
+description: Something Muster should do, or do differently.
+labels: [idea]
+body:
+  - type: textarea
+    id: job
+    attributes:
+      label: What are you trying to get done?
+      description: The job, before the feature. Who is it for: a member, an administrator, someone deploying?
+    validations:
+      required: true
+  - type: textarea
+    id: now
+    attributes:
+      label: What do you do today instead?
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would like

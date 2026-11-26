@@ -1,0 +1,40 @@
+{
+  "name": "@openclaw/llm-core",
+  "version": "2026.9.8",
+  "private": true,
+  "license": "MIT",
+  "description": "OpenClaw llm-core at v2026.9.8, vendored by Muster. See ../UPSTREAM.md.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./validation": {
+      "types": "./dist/validation.d.ts",
+      "default": "./dist/validation.js"
+    },
+    "./diagnostics": {
+      "types": "./dist/utils/diagnostics.d.ts",
+      "default": "./dist/utils/diagnostics.js"
+    },
+    "./event-stream": {
+      "types": "./dist/utils/event-stream.d.ts",
+      "default": "./dist/utils/event-stream.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@openclaw/normalization-core": "workspace:*",
+    "typebox": "1.3.34"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5"
+  }
+}

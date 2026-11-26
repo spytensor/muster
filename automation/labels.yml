@@ -1,0 +1,78 @@
+# Canonical GitHub label set for projects on this standard.
+# Apply with: automation/sync-labels.sh <owner/repo>
+# Names are load-bearing — AGENTS.md issue-pickup rules key off them (Standard P7).
+
+# --- Pickup gating (the human-in-the-loop control) ---
+- name: "status:ready"
+  color: "0e8a16"
+  description: "Scoped, has acceptance criteria, eligible for pickup"
+- name: "status:in-progress"
+  color: "1d76db"
+  description: "Atomically claimed; an agent/human holds the lease (P11)"
+- name: "status:future"
+  color: "fbca04"
+  description: "Blocked until its predecessor closes"
+- name: "status:blocked"
+  color: "d93f0b"
+  description: "Cannot proceed; needs a decision or dependency"
+- name: "status:stale"
+  color: "e99695"
+  description: "Claim lease expired; reclaimable (P11)"
+- name: "agent-ready"
+  color: "1d76db"
+  description: "Cleared for autonomous AI pickup (with status:ready)"
+
+# --- Hard stops for autonomy ---
+- name: "constitution"
+  color: "5319e7"
+  description: "Touches locked architecture decisions; human-led"
+- name: "human-only"
+  color: "b60205"
+  description: "Must not be picked up autonomously"
+- name: "agent-halt"
+  color: "000000"
+  description: "Kill-switch: hard-stop all agents on this item (P12)"
+
+# --- Structure ---
+- name: "epic"
+  color: "3e4b9e"
+  description: "Tier 2 milestone tracker with an Evidence Ledger"
+
+# --- Governance tier / lane (Standard P8) ---
+- name: "tier:0"
+  color: "c2e0c6"
+  description: "Docs/cosmetic/read-only; light process"
+- name: "tier:1"
+  color: "0e8a16"
+  description: "Behavior/feature/state/IO/security; full gates"
+- name: "tier:2"
+  color: "006b75"
+  description: "Child of an EPIC"
+- name: "hotfix"
+  color: "d93f0b"
+  description: "Incident fast lane; evidence backfilled within the window (P8)"
+- name: "codemod"
+  color: "5319e7"
+  description: "Mechanical sweep; reviewable artifact is the transform script (P8)"
+- name: "security"
+  color: "b60205"
+  description: "Routes through the security gate (P10)"
+- name: "real-use:passed"
+  color: "0e8a16"
+  description: "Independently-executed real-use gate passed; EPIC may close (P3/P10)"
+
+# --- Priority ---
+- name: "priority:high"
+  color: "b60205"
+  description: ""
+- name: "priority:medium"
+  color: "fbca04"
+  description: ""
+- name: "priority:low"
+  color: "0e8a16"
+  description: ""
+
+# --- Area (extend per project: area:api, area:ui, ...) ---
+- name: "area:docs"
+  color: "bfdadc"
+  description: "Documentation"

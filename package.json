@@ -1,0 +1,35 @@
+{
+  "name": "muster",
+  "version": "0.2.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Enterprise agent workspace with a built-in control plane: every agent registered, every action policed and audited.",
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "vitest run",
+    "build": "pnpm -r --if-present run build",
+    "check": "pnpm format:check && pnpm lint && pnpm build && pnpm typecheck && pnpm test",
+    "dev": "node scripts/dev.mjs",
+    "desktop": "pnpm --filter @muster/desktop start",
+    "desktop:package": "pnpm --filter @muster/desktop package",
+    "deploy:up": "docker compose -f deploy/compose.yaml --env-file deploy/.env up -d --build",
+    "deploy:down": "docker compose -f deploy/compose.yaml --env-file deploy/.env down",
+    "deploy:logs": "docker compose -f deploy/compose.yaml --env-file deploy/.env logs -f --tail 100 muster",
+    "deploy:backup": "bash scripts/backup.sh",
+    "service": "bash scripts/service.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.7",
+    "@types/node": "^22.20.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

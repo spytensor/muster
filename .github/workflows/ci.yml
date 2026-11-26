@@ -1,0 +1,53 @@
+# Project CI: the authoritative producer of format/lint/typecheck/test/build results.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # GitHub's own machines, never a self-hosted runner: this repository is public, and a
+    # pull request from a fork would run its code on that machine.
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      # The server's tests run twice: on the embedded database, then on the one production uses.
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: muster
+          POSTGRES_PASSWORD: muster
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U muster" --health-interval 5s --health-timeout 3s --health-retries 20
+    steps:
+      # Actions are pinned by commit; the comment is the version.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      # Build first: packages import each other's built output.
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test
+      # Four files at a time: each test makes a database of its own and builds the whole
+      # schema in it in one transaction, and a stock PostgreSQL has room for the locks of
+      # only so many of those at once ("out of shared memory", 2026-11-24, at 54 steps).
+      - run: pnpm exec vitest run apps/server --maxWorkers=4
+        env:
+          MUSTER_TEST_DATABASE_URL: postgres://muster:muster@127.0.0.1:5432/postgres
