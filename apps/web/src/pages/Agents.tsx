@@ -37,6 +37,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/i18n";
 import { shownAgent } from "@/lib/agentName";
 import { type Agent, api, type Level, type Me } from "@/lib/api";
+import { address } from "@/lib/utils";
 
 const stateVariant = {
   published: "ok",
@@ -249,7 +250,7 @@ function AgentDetail({
                         <li
                           key={person.email}
                           className="grid grid-cols-[11rem_1fr_auto] items-center gap-3 text-sm"
-                          title={person.email}
+                          title={address(person.email) || undefined}
                         >
                           <span className="truncate">{person.name || person.email}</span>
                           <span

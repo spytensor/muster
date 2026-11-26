@@ -12,6 +12,7 @@ import { Connections } from "./connections.js";
 import { registerConnectors } from "./connectors.js";
 import { openEmbeddedDb, openPostgresDb } from "./db.js";
 import { registerDesktop } from "./desktop.js";
+import { Directories, registerDirectory } from "./directory.js";
 import { seedDemo } from "./dev/seed.js";
 import { registerDrafts } from "./drafts.js";
 import { Files } from "./files/service.js";
@@ -90,6 +91,7 @@ const followups = new Followups(db, config, runs, connections);
 await followups.recover();
 const alerts = new Alerts(db, config, { sandbox });
 const tracker = new Tracker(db, config.secretKey);
+const directories = new Directories(db, config.secretKey, publicNet);
 const forwarder = new AuditForwarder(db, config.secretKey, publicNet);
 const reclaim = new SandboxReclaim(db, sandbox);
 const app = await createApp(config, db, (inner, kit) => {
@@ -129,7 +131,14 @@ const app = await createApp(config, db, (inner, kit) => {
   registerRetention(inner, kit, db, files, { secretKey: config.secretKey, spaces: sandbox });
   registerSso(inner, kit, db, config, publicNet);
   registerScim(inner, kit, db, config);
+  registerDirectory(inner, kit, db, config, directories);
 });
+
+// The company's directory is read again every hour; asked every few minutes.
+const readDirectories = () =>
+  directories.tick().catch((error) => console.error("reading directories failed:", error));
+setTimeout(readDirectories, 30_000).unref();
+setInterval(readDirectories, 5 * 60 * 1000).unref();
 
 // The activity log is sent on to where an administrator named, and checked once a day.
 // A run of code whose server stopped under it is closed once its time is well past.

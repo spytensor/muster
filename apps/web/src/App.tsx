@@ -12,6 +12,8 @@ import {
   LanguagesIcon,
   LayoutDashboardIcon,
   LoaderCircleIcon,
+  ArrowUpIcon,
+  LockIcon,
   LogOutIcon,
   MenuIcon,
   MonitorIcon,
@@ -42,7 +44,7 @@ import { ApiError, api, type Me, type Permission, whenSignedOut } from "@/lib/ap
 import { desktop } from "@/lib/desktop";
 import { LOCAL, syncProfile } from "@/lib/profile";
 import { type ThemeMode, useTheme } from "@/lib/theme";
-import { cn } from "@/lib/utils";
+import { address, cn } from "@/lib/utils";
 import { Workspace } from "@/app/Workspace";
 import { AgentsPage } from "@/pages/Agents";
 import { AlertsPage } from "@/pages/Alerts";
@@ -242,7 +244,7 @@ const themeIcon: Record<ThemeMode, typeof SunIcon> = {
 };
 
 /** Language and appearance, available before and after signing in. */
-export function Preferences({ align = "end" }: { align?: "end" | "center" }) {
+export function Preferences({ align = "end" }: { align?: "start" | "end" | "center" }) {
   const { t, locale, setLocale } = useI18n();
   const { mode, setMode } = useTheme();
   const ThemeIcon = themeIcon[mode];
@@ -291,16 +293,71 @@ export function Preferences({ align = "end" }: { align?: "end" | "center" }) {
   );
 }
 
+/**
+ * The page a signed-out person meets, and every page like it: what to do on the left,
+ * and on a wide window a picture of what Muster is on the right.
+ */
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="app-strip grid min-h-dvh place-items-center bg-muted px-4">
-      <div className="grid w-full max-w-sm justify-items-center gap-4">
-        <div className="grid w-full justify-items-center gap-4 rounded-2xl border bg-card p-8 text-center shadow-sm">
-          {children}
+    <main className="app-strip grid min-h-dvh bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <div className="flex min-h-dvh flex-col px-6 py-6 sm:px-10">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="grid w-full max-w-[400px] gap-6">{children}</div>
         </div>
-        <Preferences align="center" />
+        <div className="flex justify-center lg:justify-start">
+          <Preferences align="start" />
+        </div>
       </div>
+      <SignInPicture />
     </main>
+  );
+}
+
+/**
+ * What Muster is, in one picture: someone asks, an agent works, and every step it takes
+ * passes the gateway and is on the record. Drawn, not a photograph, so it reads in any
+ * language and at any width; hidden where the window has no room for it.
+ */
+function SignInPicture() {
+  const { t } = useI18n();
+  const p = t.login.picture;
+  const tone = { allow: "bg-emerald-400", ask: "bg-amber-400", block: "bg-rose-400" } as const;
+  return (
+    <aside
+      aria-hidden="true"
+      className="relative m-3 hidden overflow-hidden rounded-[28px] bg-[#0b0d12] text-white lg:block"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(120%_70%_at_70%_0%,#3b5bfd55_0%,transparent_60%),radial-gradient(90%_60%_at_15%_100%,#12b98155_0%,transparent_60%),radial-gradient(70%_50%_at_95%_95%,#f59e0b40_0%,transparent_60%)]" />
+      <div className="absolute inset-0 [background-image:linear-gradient(#ffffff0a_1px,transparent_1px),linear-gradient(90deg,#ffffff0a_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(80%_70%_at_50%_45%,#000_30%,transparent_100%)]" />
+      <div className="relative flex h-full flex-col justify-center gap-7 px-[9%] py-12">
+        <p className="max-w-[26ch] text-[30px] leading-[1.2] font-semibold tracking-tight text-balance">
+          {p.title.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </p>
+        <div className="grid max-w-[460px] gap-2.5">
+          <div className="flex items-center gap-3 rounded-2xl bg-white/95 px-4 py-3.5 text-[15px] text-[#0d0d0d] shadow-2xl shadow-black/40">
+            <span className="min-w-0 flex-1 truncate">{p.ask}</span>
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#0d0d0d] text-white">
+              <ArrowUpIcon className="size-4" />
+            </span>
+          </div>
+          <ul className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur">
+            {p.steps.map((step) => (
+              <li key={step.what} className="flex items-center gap-3 px-4 py-2.5 text-[13px]">
+                <span className={cn("size-1.5 shrink-0 rounded-full", tone[step.tone])} />
+                <span className="w-24 shrink-0 truncate text-white/60">{step.who}</span>
+                <span className="min-w-0 flex-1 truncate">{step.what}</span>
+                <span className="shrink-0 text-white/60">{step.rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-[13px] text-white/55">{p.foot}</p>
+      </div>
+    </aside>
   );
 }
 
@@ -336,7 +393,25 @@ function ProviderMark({ id }: { id: string }) {
         />
       </svg>
     );
-  return <KeyRoundIcon aria-hidden="true" className="size-[18px] shrink-0 text-[#5f6368]" />;
+  // The three services a company's people already work in: each by its colour and the
+  // first character of its name, which is how its people tell them apart.
+  const tile = {
+    feishu: ["#3370ff", "飞"],
+    lark: ["#3370ff", "L"],
+    wecom: ["#0f8be8", "企"],
+    dingtalk: ["#1677ff", "钉"],
+  }[id];
+  if (tile)
+    return (
+      <span
+        aria-hidden="true"
+        className="grid size-[22px] shrink-0 place-items-center rounded-md text-[12px] leading-none font-semibold text-white"
+        style={{ background: tile[0] }}
+      >
+        {tile[1]}
+      </span>
+    );
+  return <KeyRoundIcon aria-hidden="true" className="size-[18px] shrink-0 text-muted-foreground" />;
 }
 
 function Login({ failure }: { failure: string | null }) {
@@ -389,20 +464,20 @@ function Login({ failure }: { failure: string | null }) {
   };
   return (
     <Shell>
-      <Mark className="size-14" />
-      <div className="grid gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">{t.login.title}</h1>
-        <Lead className="text-sm text-muted-foreground">
+      <Mark className="size-12" />
+      <div className="grid gap-1.5">
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">{t.login.title}</h1>
+        <Lead className="text-[15px] text-muted-foreground">
           {waiting ? t.login.waitingBrowser : t.login.lead}
         </Lead>
       </div>
       {(error || gaveUp) && (
-        <p className="w-full rounded-lg border border-destructive/30 bg-destructive/6 px-3 py-2 text-left text-sm text-destructive">
+        <p className="w-full rounded-2xl border border-destructive/30 bg-destructive/6 px-4 py-3 text-left text-sm text-destructive">
           {error ?? t.login.browserFailed}
         </p>
       )}
-      <div className="grid w-full gap-2">
-        {/* Each company account is a button in that provider's own colours, as people know it. */}
+      <div className="grid w-full gap-3 empty:hidden">
+        {/* Each company account is a button with that provider's own mark, as people know it. */}
         {providers
           ?.filter((provider) => provider.id !== "dev")
           .map((provider) => (
@@ -411,9 +486,11 @@ function Login({ failure }: { failure: string | null }) {
               key={provider.id}
               disabled={busy}
               onClick={() => void go(provider.id)}
-              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border bg-white px-4 text-[15px] font-medium text-[#1f1f1f] shadow-xs transition-colors hover:bg-[#f5f5f5] disabled:opacity-60"
+              className="relative flex h-[52px] w-full items-center justify-center rounded-full border border-foreground/15 bg-card px-12 text-[15px] font-medium transition-colors outline-none hover:border-foreground/30 hover:bg-foreground/[0.04] focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
             >
-              <ProviderMark id={provider.id} />
+              <span className="absolute left-5 grid place-items-center">
+                <ProviderMark id={provider.id} />
+              </span>
               {t.login.with(
                 provider.id === "oidc"
                   ? provider.label
@@ -426,31 +503,42 @@ function Login({ failure }: { failure: string | null }) {
         )}
         {desktop && providers?.length === 0 && (
           // The list could not be read: the server's own page in the browser offers the choice.
-          <Button size="lg" className="w-full" onClick={() => void go()}>
+          <Button size="lg" className="h-[52px] w-full rounded-full" onClick={() => void go()}>
             {t.login.withBrowser}
           </Button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">{desktop ? t.login.ssoBrowser : t.login.sso}</p>
+      {providers?.some((provider) => provider.id !== "dev") && (
+        <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+          <LockIcon className="size-3.5 shrink-0" />
+          {desktop ? t.login.ssoBrowser : t.login.sso}
+        </p>
+      )}
       {providers?.some((provider) => provider.id === "dev") && (
         // Exists only on a developer's own machine, and is kept apart so it is never taken for a way in.
-        <div className="grid w-full gap-2 border-t border-dashed pt-3">
-          <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
+        <div className="grid w-full gap-3">
+          <div className="flex items-center gap-3 text-[11px] tracking-wide text-muted-foreground uppercase">
+            <span className="h-px flex-1 bg-border" />
             {t.login.devOnly}
-          </p>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="w-full text-muted-foreground"
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <button
+            type="button"
             disabled={busy}
             onClick={() => void go("dev")}
+            className="flex h-[52px] w-full items-center justify-center rounded-full border border-dashed border-foreground/20 px-6 text-[15px] font-medium text-muted-foreground transition-colors outline-none hover:border-foreground/40 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
           >
             {t.login.with(t.login.devProvider)}
-          </Button>
+          </button>
         </div>
       )}
       {desktop && (
-        <Button variant="ghost" size="sm" onClick={() => void desktop?.changeServer()}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-self-start"
+          onClick={() => void desktop?.changeServer()}
+        >
           {t.login.changeServer}
         </Button>
       )}
@@ -462,17 +550,27 @@ function NoAccess({ me }: { me: Me }) {
   const { t } = useI18n();
   return (
     <Shell>
-      <Mark className="size-14" />
-      <h1 className="text-xl font-semibold tracking-tight">{t.login.signedInTitle}</h1>
-      <p className="text-sm text-muted-foreground">
-        {t.login.noAccess(me.user.email, me.org.name, t.roles[me.role])}
-      </p>
-      <Button className="w-full" onClick={() => goApp("")}>
-        {t.app.backToApp}
-      </Button>
-      <Button variant="outline" className="w-full" onClick={() => void signOut()}>
-        {t.settings.signOut}
-      </Button>
+      <Mark className="size-12" />
+      <div className="grid gap-1.5">
+        <h1 className="text-[32px] leading-tight font-semibold tracking-tight">
+          {t.login.signedInTitle}
+        </h1>
+        <p className="text-[15px] text-muted-foreground">
+          {t.login.noAccess(address(me.user.email) || me.user.name, me.org.name, t.roles[me.role])}
+        </p>
+      </div>
+      <div className="grid gap-3">
+        <Button className="h-[52px] w-full rounded-full text-[15px]" onClick={() => goApp("")}>
+          {t.app.backToApp}
+        </Button>
+        <Button
+          variant="outline"
+          className="h-[52px] w-full rounded-full text-[15px]"
+          onClick={() => void signOut()}
+        >
+          {t.settings.signOut}
+        </Button>
+      </div>
     </Shell>
   );
 }
@@ -611,8 +709,14 @@ function Console({ me, path }: { me: Me; path: string[] }) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground">{me.user.email}</div>
-                  <DropdownMenuSeparator />
+                  {address(me.user.email) && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                        {me.user.email}
+                      </div>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuItem onSelect={() => void signOut()}>
                     <LogOutIcon />
                     {t.settings.signOut}

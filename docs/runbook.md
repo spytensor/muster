@@ -287,6 +287,75 @@ was not believed; everything the directory did is there with actor `scim`. A 429
 Not tried against a real Entra ID or Okta: the steps follow their documentation and the
 tests' own provider.
 
+## 3b-2. Feishu, Lark, WeCom, DingTalk
+
+Set up in the admin console, Sign-in & sessions, "Company directory" (企业通讯录), by an
+owner. The server needs `MUSTER_SECRET_KEY` (it seals the application's secret) and must
+reach the service's API. At the service the company creates an internal application
+(企业自建应用), not a marketplace one.
+
+First name the company's mail domain on the same page. An address from the directory is
+believed only there, and only the mailbox the company gave the person; everyone else is
+kept without an address (shown by name; in exports and when erasing a person they appear
+as `<their ID>@<application>.<service>.invalid`).
+
+**Feishu / Lark** (open.feishu.cn/app, or open.larksuite.com/app)
+
+1. 创建企业自建应用. 凭证与基础信息 gives the App ID and App Secret.
+2. 安全设置 → 重定向 URL: the address the card shows (`https://<site>/auth/callback/feishu`,
+   or `/lark`).
+3. 权限管理, as the application (应用身份), read only: `contact:contact.base:readonly`,
+   `contact:department.base:readonly`, `contact:user.base:readonly`,
+   `contact:user.department:readonly` (which departments a person is in),
+   `contact:user.employee:readonly` (whether they left or are frozen, and their company
+   mailbox). Nothing that writes.
+4. 通讯录权限范围: everyone, or the departments, people and groups who should get in. Only
+   they can sign in and only they are brought in.
+5. 版本管理与发布: create a version and publish it; an administrator approves it. Until
+   then every request is refused for the missing permission, and the card names it.
+
+**WeCom** (work.weixin.qq.com → 应用管理)
+
+1. Create an application (自建). It gives the AgentId and Secret; 我的企业 gives the CorpID.
+2. 可见范围: the departments and people who should get in.
+3. 企业微信授权登录: set the callback domain to the site's host. 网页授权及JS-SDK: set the
+   可信域名 (the card shows it). Both need the domain's ownership verified.
+4. 企业可信IP: the address this server's requests leave from. Without it WeCom refuses
+   every request; saving in Muster says so.
+5. WeCom gives an application nobody's mailbox unless that person agreed, so most people
+   arrive without an address.
+
+**DingTalk** (open-dev.dingtalk.com)
+
+1. Create an internal application (企业内部应用). 凭证与基础信息 gives the Client ID and Client Secret.
+2. 安全设置 → 重定向 URL: `https://<site>/auth/callback/dingtalk`.
+3. 权限管理: 成员信息读权限, 通讯录部门信息读权限, 通讯录部门成员读权限, 邮箱等个人信息, and
+   个人信息读权限 (`Contact.User.Read`) for sign-in. The application's scope must be the
+   whole organization: with less, DingTalk refuses the department listing and nothing is read.
+
+Then in Muster: 设置, 试一下 (the owner signs in at the service once; if it fails the card
+says why), 开启. Other owners and administrators press 关联我的账号 once: they are never
+matched by an address. The first reading starts at once; after that every hour and on 立即同步.
+
+**When people leave.** A member gone from the directory is suspended at the next reading
+and signed out. If a reading would suspend more than five people and more than half of
+those it knows, nothing is suspended: the card says how many, and an owner presses
+"停用这 N 人". Check the application's scope first; narrowing it looks the same as people
+leaving. An owner or administrator who left is signed out, not suspended: remove them on
+Members.
+
+**When it breaks.** While it is on the sign-in page offers only it. The server's own
+providers still work at `https://<site>/auth/login/<id>`: an owner signs in there and
+switches it off. A reading that failed changes nothing; the card says what the service
+refused. Activity log: "Sign-in refused" with `reason: directory` and `not_in_directory`,
+`inactive`, `permission` or `credentials`; everything a reading did is there with actor
+`directory`. Removing the directory locks out people who have no other way in.
+
+Tried against the real Feishu: setting up, trying, switching on, reading a small
+directory and signing in. People sign in on Feishu's page and press "Authorize" there each
+time. Lark, WeCom and DingTalk follow the services' documentation and the tests' stand-ins
+and have not met the real thing.
+
 ## 3c. Work on repositories in the sandbox (GitHub)
 
 For agents to work on a repository when nobody's computer is attached (coding.md, "In the

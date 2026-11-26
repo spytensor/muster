@@ -16,6 +16,7 @@ import { useI18n } from "@/i18n";
 import { api, type Me, type Member } from "@/lib/api";
 import { go } from "../App";
 import { EraseMemberDialog } from "./EraseMember";
+import { address } from "@/lib/utils";
 
 /** Everything the organization holds about one person. See GET /api/members/:id. */
 interface Profile {
@@ -131,7 +132,7 @@ export function MemberDetail({
                     {t.status[m.status]}
                   </Badge>
                 </div>
-                <SheetDescription className="truncate">{m.email}</SheetDescription>
+                <SheetDescription className="truncate">{address(m.email)}</SheetDescription>
               </div>
             </div>
           ) : (
@@ -175,7 +176,7 @@ export function MemberDetail({
                       {m.status === "active" ? t.members.suspend : t.members.reactivate}
                     </Button>
                     <MoreMenu
-                      label={t.members.manage(m.email)}
+                      label={t.members.manage(m.name || m.email)}
                       items={[
                         {
                           label: t.members.removeFromOrg,

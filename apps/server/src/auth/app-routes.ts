@@ -11,6 +11,7 @@ import {
   pendingAppLogin,
   redeemAppLogin,
 } from "./app-login.js";
+import { authPage } from "./page.js";
 import { createSession, resolveSession, SESSION_COOKIE } from "./session.js";
 
 const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
@@ -28,6 +29,8 @@ export function registerAppLogin(
   config: Config,
   db: Db,
   clientIp: (c: Context) => string | null,
+  /** The organization's own ways in that are switched on, set up in the console. */
+  ownWays: () => Promise<string[]>,
 ): void {
   const secure = config.publicUrl.startsWith("https://");
   const cookie = { httpOnly: true, secure, sameSite: "Lax" as const, path: "/auth" };
@@ -49,9 +52,13 @@ export function registerAppLogin(
     // Not signed in yet. The app said which provider the person pressed, or there is only
     // one: go straight to it. Otherwise the person chooses on the sign-in page.
     const asked = c.req.query("provider");
-    // The organization's own way in, set up in the console (sso.ts): the app names it as
-    // the sign-in page offered it.
-    if (asked === "saml") return c.redirect(`${config.publicUrl}/auth/login/saml`);
+    // The organization's own way in, set up in the console (sso.ts, directory.ts): the app
+    // names it as the sign-in page offered it.
+    // While one is on it is the organization's way in, and the only one offered.
+    const own = await ownWays();
+    const ownChosen = own.find((id) => id === asked) ?? (own.length === 1 ? own[0] : undefined);
+    if (ownChosen) return c.redirect(`${config.publicUrl}/auth/login/${ownChosen}`);
+    if (own.length > 1) return c.redirect(home);
     const [only, ...others] = config.providers;
     const chosen =
       config.providers.find((provider) => provider.id === asked) ??
@@ -98,17 +105,15 @@ export function registerAppLogin(
       "content-security-policy",
       `default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; form-action 'self' ${back}`,
     );
-    return c.html(`<!doctype html><html lang="${words.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${words.title}</title>
-<style>body{font:15px -apple-system,"Segoe UI",sans-serif;background:#f7f7f8;margin:0;display:grid;place-items:center;min-height:100dvh;color:#0d0d0d}
-main{background:#fff;border:1px solid #0000001a;border-radius:16px;padding:28px;width:min(92vw,380px);text-align:center}
-h1{font-size:18px;margin:0 0 8px}p{color:#666970;margin:0 0 20px;font-size:14px}b{color:#0d0d0d}
-button{font:inherit;font-weight:500;border:0;border-radius:999px;padding:10px 20px;width:100%;cursor:pointer}
-.go{background:#000;color:#fff}.no{background:none;color:#666970;margin-top:8px}
-@media (prefers-color-scheme:dark){body{background:#000;color:#fff}main{background:#1a1d22;border-color:#ffffff1a}b{color:#fff}.go{background:#fff;color:#000}}</style></head><body><main>
-<h1>${words.heading}</h1>
-<p>${words.body}</p>
-<form method="post" action="/auth/app/approve"><button class="go" name="decision" value="allow">${words.go}</button><button class="no" name="decision" value="deny">${words.no}</button></form>
-</main></body></html>`);
+    return c.html(
+      authPage({
+        lang: words.lang,
+        title: words.title,
+        heading: words.heading,
+        lead: words.body,
+        below: `<form class="stack" method="post" action="/auth/app/approve"><button class="go" name="decision" value="allow">${words.go}</button><button class="no" name="decision" value="deny">${words.no}</button></form>`,
+      }),
+    );
   });
 
   app.post("/auth/app/approve", async (c) => {

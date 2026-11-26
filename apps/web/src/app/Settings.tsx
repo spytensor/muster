@@ -33,7 +33,7 @@ import {
 } from "@/lib/notify";
 import { pushWays, saveProfile, useProfile, type Ways } from "@/lib/profile";
 import { type ThemeMode, useTheme } from "@/lib/theme";
-import { cn } from "@/lib/utils";
+import { address, cn } from "@/lib/utils";
 import { cpuTime } from "@/pages/sandboxLogic";
 import type { AppAgent } from "./api";
 import { preferAgent, preferredAgent } from "./Chat";
@@ -142,7 +142,7 @@ function Account({ me }: { me: Me }) {
         <span className="text-[13px]">{me.user.name || "—"}</span>
       </Row>
       <Row label={a.email}>
-        <span className="text-[13px]">{me.user.email}</span>
+        <span className="text-[13px]">{address(me.user.email) || "—"}</span>
       </Row>
       <Row label={a.org}>
         <span className="text-[13px]">{me.org.name}</span>
@@ -479,7 +479,7 @@ function ProfileSection({ me }: { me: Me }) {
         <span className="text-[13px]">{identity.name || me.user.name || "—"}</span>
       </Row>
       <Row label={a.email}>
-        <span className="text-[13px]">{identity.email}</span>
+        <span className="text-[13px]">{address(identity.email) || "—"}</span>
       </Row>
       <Row label={a.org}>
         <span className="text-[13px]">{identity.org}</span>

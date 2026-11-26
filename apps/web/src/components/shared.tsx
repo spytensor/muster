@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 import { useI18n } from "@/i18n";
 import type { Level, Risk, Role } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { address, cn } from "@/lib/utils";
 import { Lead } from "@/components/ui/hint";
 
 export function Mark({ className }: { className?: string }) {
@@ -307,7 +307,7 @@ export function Person({ name, email }: { name: string; email: string }) {
       <Avatar name={name} email={email} />
       <div className="grid min-w-0 dense:flex dense:items-baseline dense:gap-2">
         <span className="font-medium dense:shrink-0">{name || email}</span>
-        {name && (
+        {name && address(email) && (
           <span className="text-xs text-muted-foreground dense:max-w-56 dense:truncate">
             {email}
           </span>

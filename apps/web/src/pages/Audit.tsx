@@ -16,6 +16,7 @@ import { useI18n } from "@/i18n";
 import { type AdminEvent, api, type Me } from "@/lib/api";
 import { eventSummary, eventTarget } from "@/lib/events";
 import { AuditChainCard } from "./AuditChain";
+import { address } from "@/lib/utils";
 
 const PAGE = 50;
 
@@ -128,7 +129,9 @@ export function AuditPage({ me }: { me: Me }) {
                   <TableCell className="num text-muted-foreground">
                     {dateTime(event.time)}
                   </TableCell>
-                  <TableCell>{event.actorEmail}</TableCell>
+                  <TableCell>
+                    {address(event.actorEmail) || event.actorEmail.split("@")[0]}
+                  </TableCell>
                   <TableCell className="font-medium">
                     {actionLabel[event.action] ?? event.action}
                   </TableCell>

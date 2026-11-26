@@ -24,6 +24,22 @@ export const ERRORS = {
   ],
   saml_unreachable: [502, "The metadata address could not be read. Paste the metadata instead."],
   saml_untried: [409, "Sign in through it once first: it is switched on only after it has worked."],
+  invalid_directory: [
+    400,
+    "A directory needs its kind, the application's ID and its secret; WeCom also needs the agent ID.",
+  ],
+  directory_taken: [409, "This application already answers for another organization."],
+  directory_busy: [409, "The directory is being read right now. Try again in a moment."],
+  directory_refused: [400, "The service does not accept this application ID and secret."],
+  directory_not_allowed: [
+    409,
+    "The service refused this application: it lacks a permission, or this server's address is not on its trusted list.",
+  ],
+  directory_unreachable: [502, "The directory's service could not be reached. Try again."],
+  directory_untried: [
+    409,
+    "Sign in through it once first: it is switched on only after it has worked.",
+  ],
   scim_too_many: [409, "There are 5 provisioning tokens already. Revoke one first."],
   already_member: [409, "This address already belongs to a member."],
   already_invited: [409, "This address already has a pending invitation."],

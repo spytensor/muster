@@ -81,6 +81,16 @@ export const en = {
     lead: "Use your work account.",
     with: (provider: string) => `Sign in with ${provider}`,
     sso: "You sign in on your company's own page.",
+    picture: {
+      title: ["Agents that do the work.", "A record of every step."],
+      ask: "Reconcile March's invoices and email finance the gaps",
+      steps: [
+        { tone: "allow", who: "Finance agent", what: "Read 214 invoices", rule: "Allowed" },
+        { tone: "ask", who: "Finance agent", what: "Send mail to finance", rule: "Asked you" },
+        { tone: "block", who: "Finance agent", what: "Delete the ledger export", rule: "Refused" },
+      ] as { tone: "allow" | "ask" | "block"; who: string; what: string; rule: string }[],
+      foot: "Every agent registered. Every action through one gateway. Every run on the record.",
+    },
     devOnly: "Development only",
     devProvider: "a development account",
     withBrowser: "Sign in with your browser",
@@ -332,6 +342,14 @@ export const en = {
       "This is not SAML metadata of an identity provider: it needs an entity ID, an https sign-in address and a signing certificate.",
     saml_unreachable: "The metadata address could not be read. Paste the metadata instead.",
     saml_untried: "Try it first: it is switched on only after it has worked.",
+    invalid_directory: "Fill in the app's ID and secret. WeCom also needs the AgentId.",
+    directory_taken: "This app is already used by another organization.",
+    directory_busy: "The directory is being synced right now. Try again in a moment.",
+    directory_refused: "The app ID or secret is not right.",
+    directory_not_allowed:
+      "The app was refused: it lacks contact permission, or this server's IP is not on the trusted list.",
+    directory_unreachable: "The directory's service could not be reached. Try again.",
+    directory_untried: "Try it first: it is switched on only after it has worked.",
     scim_too_many: "There are 5 provisioning tokens already. Revoke one first.",
     already_member: "This address already belongs to a member.",
     already_invited: "This address already has a pending invitation.",
@@ -377,6 +395,10 @@ export const en = {
     microsoft: "Microsoft",
     oidc: "Company account",
     saml: "Single sign-on",
+    feishu: "Feishu",
+    lark: "Lark",
+    wecom: "WeCom",
+    dingtalk: "DingTalk",
     dev: "Development account",
   } as Record<string, string>,
   events: {
@@ -401,6 +423,13 @@ export const en = {
     "sso.saml_on": "Switched single sign-on on",
     "sso.saml_off": "Switched single sign-on off",
     "sso.saml_removed": "Removed single sign-on",
+    "directory.set": "Set up the company directory",
+    "directory.connected": "Connected their account to the company directory",
+    "directory.on": "Switched directory sign-in and sync on",
+    "directory.off": "Switched directory sign-in and sync off",
+    "directory.removed": "Removed the company directory",
+    "directory.synced": "Synced the company directory",
+    "directory.left": "Left the directory; signed out everywhere",
     "scim.token_created": "Made a provisioning token",
     "scim.token_revoked": "Revoked a provisioning token",
     "member.erased": "Erased a removed member's data",
@@ -770,6 +799,49 @@ export const en = {
     revoke: "Revoke",
     revokeConfirm: (tail: string) =>
       `Your directory can no longer provision with the token ending ${tail}.`,
+  },
+  directory: {
+    title: "Company directory",
+    none: "Not set up. Feishu, Lark, WeCom or DingTalk.",
+    setUpLead:
+      "The internal app your company created at the service, with read access to contacts.",
+    kinds: { feishu: "Feishu", lark: "Lark", wecom: "WeCom", dingtalk: "DingTalk" } as Record<
+      string,
+      string
+    >,
+    appId: {
+      feishu: "App ID",
+      lark: "App ID",
+      wecom: "Corp ID (CorpID)",
+      dingtalk: "Client ID",
+    } as Record<string, string>,
+    agentId: "AgentId",
+    secret: "Secret",
+    redirectUrl: "Redirect URL",
+    trustedDomain: "Trusted domain",
+    changeOff: "Another app switches it off until it is tried again.",
+    read: (people: number, departments: number, when: string) =>
+      `${people} people · ${departments} departments${when ? ` · synced ${when}` : ""}`,
+    syncNow: "Sync now",
+    held: (n: number) => `${n} people are no longer in the directory and still have access.`,
+    suspend: (n: number) => `Suspend ${n} people`,
+    suspendConfirm: (n: number) =>
+      `${n} people lose access and are signed out. Check the app's contact scope first: narrowing it looks the same as people leaving.`,
+    skipped: (n: number) =>
+      `${n} not matched: an owner or administrator connects their own account.`,
+    problems: {
+      credentials: "The app's secret is no longer accepted.",
+      permission: "The app was refused: a missing permission, or an untrusted IP.",
+      unreachable: "The directory could not be read.",
+      empty: "The directory returned no people; nothing changed. Check the app's contact scope.",
+      not_in_directory: "That account is not in the company, or not in the app's contact scope.",
+      inactive: "That account has left the company or is switched off there.",
+      answer: "The service's answer could not be read.",
+    } as Record<string, string>,
+    switchOnConfirm: (name: string) =>
+      `The sign-in page will offer only ${name}. Everyone in the directory becomes a member; anyone who leaves it is suspended.`,
+    removeConfirm:
+      "Nobody can sign in through it afterwards, and people who have no other way in are locked out. People and their work stay.",
   },
   security: {
     providersTitle: "Sign-in",

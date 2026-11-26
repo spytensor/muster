@@ -368,7 +368,13 @@ export function MarketPage({ me }: { me: Me }) {
     const giver = members.data?.find((member) => member.id === from);
     const taker = members.data?.find((member) => member.id === to);
     if (!giver || !taker) return;
-    if (!(await confirm(m.handOver, m.handOverConfirm(giver.email, taker.email)))) return;
+    if (
+      !(await confirm(
+        m.handOver,
+        m.handOverConfirm(giver.name || giver.email, taker.name || taker.email),
+      ))
+    )
+      return;
     await action.run(async () => {
       const result = await api<{ moved: Record<string, number> }>(`/api/members/${from}/handover`, {
         method: "POST",
@@ -379,7 +385,7 @@ export function MarketPage({ me }: { me: Me }) {
           result.moved.agent ?? 0,
           result.moved.skill ?? 0,
           result.moved.knowledge ?? 0,
-          taker.email,
+          taker.name || taker.email,
         ),
       );
       setFrom("");

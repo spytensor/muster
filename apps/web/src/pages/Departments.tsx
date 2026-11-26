@@ -24,6 +24,7 @@ import {
 import { useI18n } from "@/i18n";
 import { api, type Dashboard, type Department, type Me, type Member } from "@/lib/api";
 import { Lead } from "@/components/ui/hint";
+import { address } from "@/lib/utils";
 
 /**
  * The organization's departments, each with who is in it and what its agents did and
@@ -134,7 +135,7 @@ export function DepartmentsPage({ me }: { me: Me }) {
                           {people.map((member) => (
                             <span
                               key={member.id}
-                              title={member.email}
+                              title={address(member.email) || undefined}
                               className="flex items-center gap-1.5 text-[13px]"
                             >
                               <Avatar
@@ -226,7 +227,7 @@ export function DepartmentsPage({ me }: { me: Me }) {
                     <span className="truncate text-[13px] font-medium">
                       {member.name || member.email}
                     </span>
-                    {member.name && (
+                    {member.name && address(member.email) && (
                       <span className="truncate text-xs text-muted-foreground">{member.email}</span>
                     )}
                   </span>

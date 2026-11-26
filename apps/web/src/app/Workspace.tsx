@@ -36,7 +36,7 @@ import { useI18n } from "@/i18n";
 import { api, type Me } from "@/lib/api";
 import { desktop } from "@/lib/desktop";
 import { notify } from "@/lib/notify";
-import { cn } from "@/lib/utils";
+import { address, cn } from "@/lib/utils";
 import { MyAgents } from "./AgentsPage";
 import {
   type Approval,
@@ -635,7 +635,9 @@ export function Workspace({ me, path }: { me: Me; path: string[] }) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">{me.user.email}</div>
+            {address(me.user.email) && (
+              <div className="px-2 py-1.5 text-xs text-muted-foreground">{me.user.email}</div>
+            )}
             <DropdownMenuItem onSelect={() => setSettings("account")}>
               <SettingsIcon />
               <span className="flex-1">{t.prefs.title}</span>

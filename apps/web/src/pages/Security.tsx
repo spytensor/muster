@@ -16,6 +16,7 @@ import { useI18n } from "@/i18n";
 import { api, type Me, type Session, type SignInSettings } from "@/lib/api";
 import { device } from "@/lib/events";
 import { Lead } from "@/components/ui/hint";
+import { DirectoryCard } from "./DirectoryCard";
 import { SsoCards } from "./Sso";
 
 export function SecurityPage({ me }: { me: Me }) {
@@ -218,7 +219,10 @@ export function SecurityPage({ me }: { me: Me }) {
           </CardContent>
         </Card>
         {me.permissions.includes("settings.read") && (
-          <SsoCards canManage={me.permissions.includes("settings.manage")} />
+          <>
+            <DirectoryCard canManage={me.permissions.includes("settings.manage")} />
+            <SsoCards canManage={me.permissions.includes("settings.manage")} />
+          </>
         )}
       </div>
       {asking.dialog}

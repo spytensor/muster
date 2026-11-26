@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { Hono } from "hono";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
+import { authPage } from "../auth/page.js";
 import type { ProviderConfig } from "../config.js";
 
 /** Accounts offered on the development sign-in page. */
@@ -65,16 +66,17 @@ export async function createDevIdp(provider: ProviderConfig, redirectUri: string
         `${issuer}/authorize${base}&email=${encodeURIComponent(address)}`;
       const items = DEV_ACCOUNTS.map(
         (a) =>
-          `<a href="${escapeHtml(link(a.email))}"><b>${escapeHtml(a.name)}</b><span>${escapeHtml(a.email)}</span></a>`,
+          `<a class="row" href="${escapeHtml(link(a.email))}"><b>${escapeHtml(a.name)}</b><span>${escapeHtml(a.email)}</span></a>`,
       ).join("");
-      return c.html(`<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Development sign-in</title>
-<style>body{font:15px -apple-system,"Segoe UI",sans-serif;background:#f7f7f8;margin:0;display:grid;place-items:center;min-height:100dvh;color:#0d0d0d}
-main{background:#fff;border:1px solid #0000001a;border-radius:16px;padding:28px;width:min(92vw,380px)}
-h1{font-size:18px;margin:0 0 4px}p{color:#666970;margin:0 0 16px;font-size:13px}
-a{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;text-decoration:none;color:inherit}
-a:hover{background:#f1f1f3}a span{color:#666970}</style></head><body><main>
-<h1>Development sign-in</h1><p>Exists only in development mode and asks for no password. Choose an account:</p>${items}</main></body></html>`);
+      return c.html(
+        authPage({
+          lang: "en",
+          title: "Development sign-in",
+          heading: "Development sign-in",
+          lead: "Exists only in development mode and asks for no password. Choose an account.",
+          below: `<div class="stack">${items}</div>`,
+        }),
+      );
     }
     const code = randomBytes(24).toString("base64url");
     codes.set(code, {

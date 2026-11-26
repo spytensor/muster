@@ -20,6 +20,7 @@ import { SANDBOX_USE_SCHEMA } from "./sandboxUse.js";
 import { SCHEDULES_SCHEMA } from "./schedules.js";
 import { SHARING_SCHEMA } from "./sharing.js";
 import { SKILLS_SCHEMA } from "./skills.js";
+import { DIRECTORY_SCHEMA, DIRECTORY_TRIED_SCHEMA } from "./directory.js";
 import { SSO_FIXES_SCHEMA, SSO_SCHEMA } from "./sso.js";
 import { TOOL_POLICY_SCHEMA } from "./toolPolicy.js";
 import { TRACKER_FIXES_SCHEMA, TRACKER_SCHEMA } from "./tracker.js";
@@ -662,4 +663,10 @@ export const MIGRATIONS: string[][] = [
   // 56: a project counts the things ever kept in it, so a removed thing's number is not
   // given to another (projectItems.ts).
   PROJECT_ITEMS_NUMBERS_SCHEMA,
+  // 57: the company's directory at Feishu, WeCom or DingTalk: the application it
+  // registered there, sign-ins on their way through it, and which department is which
+  // (directory.ts).
+  DIRECTORY_SCHEMA,
+  // 58: why the last try of a directory from the console did not work.
+  DIRECTORY_TRIED_SCHEMA,
 ];

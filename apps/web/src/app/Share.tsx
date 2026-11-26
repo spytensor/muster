@@ -12,6 +12,7 @@ import {
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { Lead } from "@/components/ui/hint";
+import { address } from "@/lib/utils";
 
 export type ItemKind = "agent" | "skill" | "knowledge" | "file";
 interface Shared {
@@ -161,8 +162,7 @@ export function ShareDialog({
                         {person.name || person.email}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {person.email}
-                        {person.departmentName ? ` · ${person.departmentName}` : ""}
+                        {[address(person.email), person.departmentName].filter(Boolean).join(" · ")}
                       </span>
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground">
@@ -216,7 +216,7 @@ export function ShareDialog({
                   <span className="grid min-w-0 flex-1">
                     <span className="truncate text-sm">{share.name || share.email || s.gone}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {share.toKind === "user" ? share.email : s.everyoneIn}
+                      {share.toKind === "user" ? address(share.email) : s.everyoneIn}
                     </span>
                   </span>
                   {kind === "file" && (

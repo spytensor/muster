@@ -43,6 +43,7 @@ import { MoreMenu } from "@/components/more";
 import { useI18n } from "@/i18n";
 import { MemberDetail } from "./MemberDetail";
 import { api, type Department, type Me, type Member, type Role } from "@/lib/api";
+import { address } from "@/lib/utils";
 
 export const ROLE_ORDER: Role[] = ["owner", "admin", "auditor", "billing", "member"];
 
@@ -54,7 +55,10 @@ type Pending = {
   kind: "edit" | "suspend" | "reactivate" | "remove" | "restore";
   member: Member;
 } | null;
-const who = (member: Member) => (member.name ? `${member.name} (${member.email})` : member.email);
+const who = (member: Member) =>
+  member.name && address(member.email)
+    ? `${member.name} (${member.email})`
+    : member.name || member.email;
 
 interface Invitation {
   id: string;
@@ -157,7 +161,7 @@ export function MembersPage({ me }: { me: Me }) {
   const rows = members.data.filter(
     (m) =>
       (!needle ||
-        `${m.name} ${m.email} ${m.departmentName ?? ""}`.toLowerCase().includes(needle)) &&
+        `${m.name} ${address(m.email)} ${m.departmentName ?? ""}`.toLowerCase().includes(needle)) &&
       (role === "all" || m.role === role) &&
       // Someone removed is no longer a member: they are listed only where asked for.
       (status === "all" ? m.status !== "removed" : m.status === status),
@@ -281,7 +285,7 @@ export function MembersPage({ me }: { me: Me }) {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={t.members.manage(member.email)}
+                              aria-label={t.members.manage(member.name || member.email)}
                             >
                               <MoreHorizontalIcon />
                             </Button>

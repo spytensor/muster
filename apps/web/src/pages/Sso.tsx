@@ -45,7 +45,7 @@ interface Sso {
 }
 
 /** A value to carry over to the identity provider's own setup page. */
-function Copyable({ label, value }: { label: string; value: string }) {
+export function Copyable({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="grid gap-1">

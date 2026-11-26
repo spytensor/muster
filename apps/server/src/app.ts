@@ -114,6 +114,8 @@ export interface SignInWay {
   offered(): Promise<{ id: string; label: string } | null>;
   /** Sends the person to it. */
   begin(c: Context): Promise<Response>;
+  /** Takes the person back from it at /auth/callback/<id>, for a way that returns there. */
+  complete?(c: Context): Promise<Response>;
 }
 
 /** Where a connected service sends a person back to. See connectors.ts. */
@@ -334,10 +336,8 @@ export async function createApp(
 
   app.get("/auth/providers", async (c) => {
     // A way in the organization set up for itself is its one way in.
-    for (const way of ways) {
-      const own = await way.offered();
-      if (own) return c.json([own]);
-    }
+    const own = (await Promise.all(ways.map((way) => way.offered()))).filter((one) => one !== null);
+    if (own.length > 0) return c.json(own);
     return c.json(config.providers.map(({ id, label }) => ({ id, label })));
   });
 
@@ -355,6 +355,8 @@ export async function createApp(
   });
 
   app.get("/auth/callback/:provider", async (c) => {
+    const way = ways.find((one) => one.id === c.req.param("provider"));
+    if (way?.complete) return way.complete(c);
     const provider = oidc.provider(c.req.param("provider"));
     if (!provider) return c.notFound();
     const denied = (reason: DenyReason | "failed") =>
@@ -408,7 +410,9 @@ export async function createApp(
     return c.redirect(`${config.publicUrl}/`);
   });
 
-  registerAppLogin(app, config, db, clientIp);
+  registerAppLogin(app, config, db, clientIp, async () =>
+    (await Promise.all(ways.map((way) => way.offered()))).flatMap((one) => (one ? [one.id] : [])),
+  );
 
   /** The session token: a native app sends it in a header, a browser in its cookie. */
   // A request that carries an Authorization header is judged by that header alone: it skipped

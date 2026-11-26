@@ -14,6 +14,7 @@ import { Lead } from "@/components/ui/hint";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { Project, ProjectMember } from "./api";
+import { address } from "@/lib/utils";
 
 interface Person {
   id: string;
@@ -162,8 +163,9 @@ export function ProjectPeople({
                             {person.name || person.email}
                           </span>
                           <span className="truncate text-xs text-muted-foreground">
-                            {person.email}
-                            {person.departmentName ? ` · ${person.departmentName}` : ""}
+                            {[address(person.email), person.departmentName]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </span>
                         </span>
                         <span className="shrink-0 text-xs text-muted-foreground">
@@ -196,7 +198,7 @@ export function ProjectPeople({
                       {one.me && <span className="text-muted-foreground"> ({s.you})</span>}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {one.active ? one.email : s.left}
+                      {one.active ? address(one.email) : s.left}
                     </span>
                   </span>
                   {owns && one.role !== "owner" ? (

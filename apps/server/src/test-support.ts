@@ -15,6 +15,7 @@ import { Connections } from "./connections.js";
 import { registerConnectors } from "./connectors.js";
 import { type Db, openEmbeddedDb, openPostgresDb } from "./db.js";
 import { registerDesktop } from "./desktop.js";
+import { Directories, registerDirectory } from "./directory.js";
 import { registerDrafts } from "./drafts.js";
 import { Files } from "./files/service.js";
 import { diskStore } from "./files/store.js";
@@ -59,6 +60,7 @@ export interface Harness {
   codeHosts: CodeHosts;
   files: Files;
   modelSettings: ModelSettings;
+  directories: Directories;
   /** Walks the whole sign-in flow through the development provider. `existingCookie` is a session the browser already holds. */
   signIn(
     email: string,
@@ -194,6 +196,7 @@ export async function harness(
   });
   const tracker = new Tracker(db, config.secretKey, { net: options.net ?? refuse });
   const forwarder = new AuditForwarder(db, config.secretKey, options.net ?? refuse);
+  const directories = new Directories(db, config.secretKey, options.net ?? refuse);
   const app = (await createApp(config, db, (inner, kit) => {
     registerFollowups(inner, kit, db, followups);
     registerMarket(inner, kit, db);
@@ -233,6 +236,7 @@ export async function harness(
     });
     registerSso(inner, kit, db, config, options.net ?? refuse);
     registerScim(inner, kit, db, config);
+    registerDirectory(inner, kit, db, config, directories);
   })) as unknown as Hono<never>;
 
   // Returns the callback path and the cookie that binds the attempt to "this browser".
@@ -258,6 +262,7 @@ export async function harness(
     codeHosts,
     files,
     modelSettings,
+    directories,
     beginLogin,
     start,
     async signIn(email, existing) {

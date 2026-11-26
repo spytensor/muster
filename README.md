@@ -25,7 +25,7 @@ in one repository, under one licence.
 | | What you get | In the same space |
 |---|---|---|
 | **A workspace** for everyone | Web, a macOS desktop app, and an iOS app you build from source. Talk to agents, get replies as real interface (tables, forms, charts), keep documents and files, build agents of your own. | Tencent WorkBuddy |
-| **A control plane** for the company | Every agent registered under its own identity and risk level. Approvals, a trace of every run, usage and cost, an append-only activity log, SSO (Google, Microsoft, OIDC, SAML) and SCIM. | Microsoft Agent 365 |
+| **A control plane** for the company | Every agent registered under its own identity and risk level. Approvals, a trace of every run, usage and cost, an append-only activity log, SSO (Google, Microsoft, OIDC, SAML) and SCIM; sign-in and directory sync with Feishu, WeCom and DingTalk (new). | Microsoft Agent 365 |
 | **A governed runtime** | Built on OpenClaw's agent loop. Every tool call passes one gateway that allows it, asks the person first, or refuses. Code runs in a sandbox that reaches only the hosts an administrator allows. | Built on OpenClaw |
 
 What makes it different: the agents and their governance are one system. Nothing an agent
@@ -114,9 +114,11 @@ agents that run somewhere else. Each feature's own limits are written down in
 
 - **Does anything leave our network?** What agents read goes to the model you chose;
   host the model yourself and it does not leave. Web search is off until you turn it on.
-- **Which sign-in works?** Google, Microsoft, any OpenID Connect provider (Keycloak,
-  Authing, Okta, Authentik), SAML 2.0, with SCIM 2.0 for provisioning. Not built: LDAP,
-  WeCom, DingTalk and Feishu sign-in.
+- **Which sign-in works?** Feishu, Lark, WeCom and DingTalk, with people and departments
+  kept in step with that directory (new: Feishu's is tried against the real service,
+  the other three not yet). Google, Microsoft, any OpenID Connect provider
+  (Keycloak, Authing, Okta, Authentik), SAML 2.0, with SCIM 2.0 for provisioning. Not
+  built: LDAP.
 - **Which languages?** The interface is in English and Simplified Chinese.
 - **How big can it go?** One server container per database, on one machine. There is no
   high-availability setup yet. Backup, upgrade and going back are in the runbook.

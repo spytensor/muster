@@ -83,7 +83,7 @@ function traceWhere(orgId: string, f: TraceFilters) {
   if (f.level.length) add("t.max_action = any(?::text[])", f.level);
   if (f.venue) add("t.venue = ?", f.venue);
   if (f.agent) add("t.agent_id = ?::uuid", f.agent);
-  if (f.user) add("u.email ilike '%' || ? || '%'", escapeLike(f.user));
+  if (f.user) add("(u.email || ' ' || u.name) ilike '%' || ? || '%'", escapeLike(f.user));
   if (f.minMs !== undefined) add("t.duration_ms >= ?", f.minMs);
   if (f.q) {
     params.push(escapeLike(f.q));

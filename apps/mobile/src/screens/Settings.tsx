@@ -236,9 +236,11 @@ export function Settings() {
             <Text style={{ fontSize: 28, fontWeight: "700", color: c.accentText }}>{initials}</Text>
           </View>
           <Text style={[type.title, { color: c.text, textAlign: "center" }]}>{name}</Text>
-          <Text selectable style={{ fontSize: 15, color: c.muted }}>
-            {me.user.email}
-          </Text>
+          {!me.user.email.endsWith(".invalid") && (
+            <Text selectable style={{ fontSize: 15, color: c.muted }}>
+              {me.user.email}
+            </Text>
+          )}
         </View>
       )}
       {error && <Notice tone="bad">{error}</Notice>}

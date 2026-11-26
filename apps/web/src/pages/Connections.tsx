@@ -140,7 +140,7 @@ export function ConnectionsPage({ me }: { me: Me }) {
                     <TableCell className="text-right">
                       {canManage && (
                         <MoreMenu
-                          label={t.members.manage(person.email)}
+                          label={t.members.manage(person.name || person.email)}
                           items={[
                             {
                               label: c.disconnect,
