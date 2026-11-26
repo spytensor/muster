@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 import { configDefaults, defineConfig } from "vitest/config";
 
@@ -5,17 +6,17 @@ export default defineConfig({
   // The web app writes its own imports from "@/": tests that draw its screens need the same.
   resolve: { alias: { "@": fileURLToPath(new URL("./apps/web/src", import.meta.url)) } },
   test: {
-    // A test that starts a server and a database can take a few seconds on a busy machine.
-    testTimeout: 20_000,
+    // A test that starts a server and a database can take a few seconds on a busy machine,
+    // and several times that on a hosted runner with a few shared cores: two tests ran
+    // past twenty seconds there on 2026-11-26, the first time this ran on GitHub's machines.
+    testTimeout: process.env.CI ? 90_000 : 20_000,
     // What a file sets up before its tests (a server, a database, seeded traces) takes as
-    // long as a test does, and longer when the machine is also deploying or running other
-    // services: observe.test.ts ran past the default ten seconds on the home runner twice
-    // on 2026-11-23 (MUS-33).
-    hookTimeout: 60_000,
-    // On the runner, eight files at a time: with one per core (28 there) the embedded
-    // databases together took 19.7 GB on 2026-11-24, and the machine, which also serves
-    // production, killed the runner for want of memory.
-    ...(process.env.CI ? { maxWorkers: 8 } : {}),
+    // long as a test does.
+    hookTimeout: process.env.CI ? 120_000 : 60_000,
+    // In CI, no more files at a time than the machine has cores, and never more than
+    // eight: each file's embedded database takes memory, and more files than cores only
+    // makes every one of them slower.
+    ...(process.env.CI ? { maxWorkers: Math.min(8, availableParallelism()) } : {}),
     // The mobile app is outside the workspace and runs its own tests (apps/mobile).
     exclude: [
       ...configDefaults.exclude,
