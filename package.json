@@ -3,7 +3,21 @@
   "version": "0.2.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "Enterprise agent workspace with a built-in control plane: every agent registered, every action policed and audited.",
+  "description": "Open-source alternative to Tencent WorkBuddy and Microsoft Agent 365: an enterprise agent workspace with the control plane built in, on a runtime built on OpenClaw.",
+  "keywords": [
+    "workbuddy",
+    "agent-365",
+    "openclaw",
+    "ai-agents",
+    "agent-workspace",
+    "agent-governance",
+    "control-plane",
+    "enterprise-ai",
+    "feishu",
+    "wecom",
+    "dingtalk",
+    "self-hosted"
+  ],
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {

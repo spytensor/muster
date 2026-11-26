@@ -6,6 +6,7 @@
 
 <p align="center">
   <b>The open-source agent workspace for the enterprise, with the control plane built in.</b><br>
+  An open-source alternative to Tencent WorkBuddy and Microsoft Agent 365, built on OpenClaw.<br>
   Every employee gets agents that do real office work.<br>
   The company gets a register, a gate and a record for every one of them.
 </p>
@@ -17,6 +18,10 @@
 ![A reply in the workspace: the agent answers with a table and a chart, not a wall of text](docs/screens/workspace-reply.png)
 
 ## What it is
+
+Muster is an open-source, self-hosted alternative to **Tencent WorkBuddy** (the agent
+workspace employees use) and **Microsoft Agent 365** (the control plane a company governs
+agents with), on a runtime built on **OpenClaw**.
 
 Putting agents to work in a company takes three things: something people use, something
 the company governs with, and a runtime that can be held to rules. Muster is all three

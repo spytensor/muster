@@ -6,6 +6,7 @@
 
 <p align="center">
   <b>面向企业的开源 Agent 工作台，自带管控平面。</b><br>
+  开源版的腾讯 WorkBuddy + Microsoft Agent 365，基于 OpenClaw，支持飞书、企业微信、钉钉。<br>
   让每位员工都有能处理日常办公的 Agent，<br>
   让公司对每一个 Agent 有花名册、有网关、有记录。
 </p>
@@ -17,6 +18,8 @@
 ![工作台里的一条回复：Agent 直接给出表格和图表，而不是一大段文字](docs/screens/zh/workspace-reply.png)
 
 ## 它是什么
+
+Muster 是**腾讯 WorkBuddy**（员工用的 Agent 工作台）和 **Microsoft Agent 365**（公司管 Agent 的管控平面）的开源、可私有部署的替代，运行时基于 **OpenClaw**。
 
 企业要让 Agent 真正干活，需要三样东西：员工用的入口、公司管的后台、能被规则约束的运行时。Muster 把三样做在一个仓库里，用同一个许可证。
 
